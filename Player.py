@@ -2,15 +2,15 @@ import Jogo
 
 class Player(object):
 	"""construtor do Player"""
-	def __init__(self, simbolo):
+	def __init__(self, simb):
 		super(Player, self).__init__()
-		self.simbolo = simbolo
+		self.simb = simb
 	#
-	def jogada(self, game, pos, simbolo):
-		pass
+	def getSimb(self):
+		return self.simb
 	#termina o jogo caso o jogador queira se render
 	def surrender(self):
-		Jogo.FimDeJogo()
+		self.perdeJogo()
 	#
 	def perdeJogo():
 		pass

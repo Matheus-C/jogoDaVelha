@@ -10,12 +10,8 @@ dest = (HOST, PORT)
 tcp.connect(dest)
 print('Para desistir digite 0\n')
 #o jogo ficará em loop até alguém ganhar/desistir
-while Jogo.getStatus():
+while True:
 	comando = input()
-	#caso o jogador desista, manda uma mensagem para o servidor para terminar o jogo
-	if comando == 0:
-		Player.surrender()
-		break
 	#envia o comando  para o servidor e monstra o tabuleiro
 	tcp.send(comando.encode())
 	recvMsg = tcp.recv(1024)
