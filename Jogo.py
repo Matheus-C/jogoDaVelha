@@ -21,7 +21,7 @@ class Jogo(object):
 			self.game[1][pos - 4] = simb
 		else:
 			self.game[2][pos - 7] = simb
-		self.vitoria(simb)
+		self.vitoria(p)
 	#termina o jogo
 	def fimDeJogo(self):
 		self.status = 0
@@ -32,30 +32,33 @@ class Jogo(object):
 	def empate(self):
 		pass
 	#analisa todas as linhas verticais se a condição de vitória foi preenchida
-	def vitoria(self, simb):
+	def vitoria(self, p):
 		for i in range(3):
-			if simb == self.game[0][i]:
-				if self.game[0][i] == self.game[1][i] and self.game[0][i] == self.game[2][i]:
-					Player.venceJogo()
+			if p.simb == self.game[0][i]:
+				if (self.game[0][i] == self.game[1][i]) and (self.game[0][i] == self.game[2][i]):
+					p.venceJogo()
+					return
 		#analisa todas as linhas horizontais se a condição de vitória foi preenchida
 		for i in range(3):
-			if simb == self.game[i][0]:
-				if self.game[i][0] == self.game[i][1] and self.game[i][0] == self.game[i][2]:
-					Player.venceJogo()
+			if p.simb == self.game[i][0]:
+				if (self.game[i][0] == self.game[i][1]) and (self.game[i][0] == self.game[i][2]):
+					p.venceJogo()
+					return
 		#analisa a 1ª linha diagonal
-		if simb == self.game[0][0]:
-			if self.game[0][0] == self.game[0][0] and self.game[0][0] == self.game[0][0]:
-				Player.venceJogo()
+		if p.simb == self.game[0][0]:
+			if (self.game[0][0] == self.game[1][1]) and (self.game[0][0] == self.game[2][2]):
+				p.venceJogo()
+				return
 		#analisa a 2ª linha diagonal
-		if simb == self.game[0][2]:
-			if self.game[0][2] == self.game[1][1] and self.game[0][2] == self.game[2][2]:
-				Player.venceJogo()
+		if p.simb == self.game[0][2]:
+			if (self.game[0][2] == self.game[1][1]) and (self.game[0][2] == self.game[2][0]):
+				p.venceJogo()
+				return
 		#analisa se ocorreu empate
 		check = 0
 		for x in range(3):
-			if self.game[0][x] != " X " or self.game[0][x] != " O ":
-				pass
-			else:
-				check = 1
-		if check == 1:
+			if (self.game[0][x] == " X ") or (self.game[0][x] == " O "):
+				check += 1
+		if check == 9:
 			self.empate()
+			return

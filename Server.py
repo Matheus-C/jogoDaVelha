@@ -1,6 +1,6 @@
 from Player import Player
 from Jogo import Jogo
-import socket, threading
+import socket, threading, time
 #thread para multiplas conexoes
 class Conexoes(threading.Thread):
 	"""Construtor de Conexoes parâmetros: con = conexao, jogador = identificador de jogador"""
@@ -13,20 +13,22 @@ class Conexoes(threading.Thread):
 #falta enviar o estado do tabuleiro para outro jogador (ou seja identificar as threads e faze-las enviar para o outro jogador apos uma jogada)
 	def run(self):
 		while True:
-			#recebe a jogada do player ativo
-			jogada = self.con.recv(1024).decode()
-			if game.fimDeJogo():
-				break
-			#faz a jogada requisitada
-			self.game.posSimb(int(jogada), self.p)
+			
+			lock.acquire()
+			self.con.send("sua vez".encode())
 			#envia o tabuleiro para mostrar o estado atual
 			self.con.send(game.getGame().encode())
-		print('Finalizando conexao do cliente', self.cliente)
-		self.con.close()
+			#recebe a jogada do player ativo
+			jogada = self.con.recv(1024).decode()
+			#faz a jogada requisitada
+			self.game.posSimb(int(jogada), self.p)
+			if not game.getStatus():
+				self.con.close()
+			self.con.send("vez do oponente".encode())
+			lock.release()
+			time.sleep(1)
 
-		
-
-
+lock = threading.Lock()
 HOST = ""
 PORT = 6854
 tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -43,9 +45,10 @@ while True:
 			game = Jogo()
 			p1 = Player(" O ")
 			player1 = Conexoes(con, cliente, p1, game)
-			player1.start()
+			
 		else:
 			p2 = Player(" X ")
 			player2 = Conexoes(con, cliente, p2, game)
+			player1.start()
 			player2.start()
 			

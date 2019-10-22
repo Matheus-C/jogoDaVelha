@@ -11,16 +11,16 @@ tcp.connect(dest)
 print('Para desistir digite 0\n')
 #o jogo ficará em loop até alguém ganhar/desistir
 while True:
+	recvMsg = tcp.recv(1024)
+	print(recvMsg.decode())
+	recvMsg = tcp.recv(1024)
+	print(recvMsg.decode())
 	comando = input()
 	#envia o comando  para o servidor e monstra o tabuleiro
 	tcp.send(comando.encode())
-	recvMsg = tcp.recv(1024)
-	print(recvMsg.decode())
 	#indica que é a vez do oponente e espera que o oponente faça sua jogada e mostra o tabuleiro
-	print("vez do oponente")
 	recvMsg = tcp.recv(1024)
 	print(recvMsg.decode())
-	print("sua vez")
 #recebe e imprime a mensagem mostrando quem ganhou
 print("O jogo acabou")
 recvMsg = tcp.recv(1024)

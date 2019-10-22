@@ -15,5 +15,5 @@ class Player(object):
 	def perdeJogo():
 		pass
 
-	def venceJogo():
-		pass
+	def venceJogo(self):
+		print("parabens!!")
