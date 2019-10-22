@@ -10,11 +10,22 @@ class Conexoes(threading.Thread):
 		self.cliente = cliente
 		self.p = p
 		self.game = game
-#falta enviar o estado do tabuleiro para outro jogador (ou seja identificar as threads e faze-las enviar para o outro jogador apos uma jogada)
+
+	def fimDeJogo(self):
+		if game.getStatus() != 0:
+				if game.getStatus() == self.p.getN():
+					self.con.send("parabéns você venceu".encode())
+				elif game.getStatus() == 3:
+					self.con.send("empatou".encode())
+				else:
+					self.con.send("você perdeu".encode())
+				lock.release()
+				self.con.close()
+
 	def run(self):
 		while True:
-			
 			lock.acquire()
+			self.fimDeJogo()
 			self.con.send("sua vez".encode())
 			#envia o tabuleiro para mostrar o estado atual
 			self.con.send(game.getGame().encode())
@@ -22,8 +33,7 @@ class Conexoes(threading.Thread):
 			jogada = self.con.recv(1024).decode()
 			#faz a jogada requisitada
 			self.game.posSimb(int(jogada), self.p)
-			if not game.getStatus():
-				self.con.close()
+			self.fimDeJogo()
 			self.con.send("vez do oponente".encode())
 			lock.release()
 			time.sleep(1)
@@ -43,11 +53,11 @@ while True:
 	if i < 3:
 		if i == 1:
 			game = Jogo()
-			p1 = Player(" O ")
+			p1 = Player(" O ", i)
 			player1 = Conexoes(con, cliente, p1, game)
 			
 		else:
-			p2 = Player(" X ")
+			p2 = Player(" X ", i)
 			player2 = Conexoes(con, cliente, p2, game)
 			player1.start()
 			player2.start()

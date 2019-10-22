@@ -2,18 +2,13 @@ import Jogo
 
 class Player(object):
 	"""construtor do Player"""
-	def __init__(self, simb):
+	def __init__(self, simb, n):
 		super(Player, self).__init__()
 		self.simb = simb
+		self.n = n
 	#
 	def getSimb(self):
 		return self.simb
-	#termina o jogo caso o jogador queira se render
-	def surrender(self):
-		self.perdeJogo()
-	#
-	def perdeJogo():
-		pass
 
-	def venceJogo(self):
-		print("parabens!!")
+	def getN(self):
+		return self.n

@@ -16,7 +16,7 @@ while True:
 	recvMsg = tcp.recv(1024)
 	print(recvMsg.decode())
 	comando = input()
-	#envia o comando  para o servidor e monstra o tabuleiro
+	#envia o comando  para o servidor 
 	tcp.send(comando.encode())
 	#indica que é a vez do oponente e espera que o oponente faça sua jogada e mostra o tabuleiro
 	recvMsg = tcp.recv(1024)
