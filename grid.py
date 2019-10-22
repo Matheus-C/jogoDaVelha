@@ -53,23 +53,24 @@ class Grid:
 			if player == self.getSquareValue(x, 0):
 				if self.getSquareValue(x, 0) == self.getSquareValue(x, 1) and self.getSquareValue(x, 0) == self.getSquareValue(x, 2):
 					self.winGame(player)
+					return
 
 		# Analisa a condição de vitória nas linhas verticais
 		for y in range(3):
 			if player == self.getSquareValue(0, y):
 				if self.getSquareValue(0, y) == self.getSquareValue(1, y) and self.getSquareValue(0, y) == self.getSquareValue(2, y):
 					self.winGame(player)
-
+					return
 		# Analisa a 1ª linha diagonal
 		if player == self.getSquareValue(0, 0):
 			if self.getSquareValue(0, 0) == self.getSquareValue(1, 1) and self.getSquareValue(0, 0) == self.getSquareValue(2, 2):
 				self.winGame(player)
-
+				return
 		# Analisa a 2ª linha diagonal
 		if player == self.getSquareValue(0, 2):
 			if self.getSquareValue(0, 2) == self.getSquareValue(1, 1) and self.getSquareValue(0, 2) == self.getSquareValue(2, 0):
 				self.winGame(player)
-
+				return
 		# Analisa se ocorreu empate
 		check = 0
 		for x in range(3):
@@ -78,7 +79,8 @@ class Grid:
 					check += 1
 		if check == 9:
 			self.tie()
-			
+			return
+		
 	# Para debugar	 
 	def gridPrint(self):
 		for line in self.grid:
