@@ -1,64 +1,80 @@
-from Player import Player
-from Jogo import Jogo
-import socket, threading, time
-#thread para multiplas conexoes
-class Conexoes(threading.Thread):
-	"""Construtor de Conexoes parâmetros: con = conexao, jogador = identificador de jogador"""
-	def __init__(self, con, cliente, p, game):
-		threading.Thread.__init__(self)
-		self.con = con
-		self.cliente = cliente
-		self.p = p
-		self.game = game
+import pygame
+import os
+import socket
+import threading
 
-	def fimDeJogo(self):
-		if game.getStatus() != 0:
-				if game.getStatus() == self.p.getN():
-					self.con.send("parabéns você venceu".encode())
-				elif game.getStatus() == 3:
-					self.con.send("empatou".encode())
-				else:
-					self.con.send("você perdeu".encode())
-				lock.release()
-				self.con.close()
+from grid import Grid
 
-	def run(self):
-		while True:
-			lock.acquire()
-			self.fimDeJogo()
-			self.con.send("sua vez".encode())
-			#envia o tabuleiro para mostrar o estado atual
-			self.con.send(game.getGame().encode())
-			#recebe a jogada do player ativo
-			jogada = self.con.recv(1024).decode()
-			#faz a jogada requisitada
-			self.game.posSimb(int(jogada), self.p)
-			self.fimDeJogo()
-			self.con.send("vez do oponente".encode())
-			lock.release()
-			time.sleep(1)
+def createThread(function):
+  thread = threading.Thread(target=function)
+  thread.daemon = True
+  thread.start()
 
-lock = threading.Lock()
-HOST = ""
-PORT = 6854
-tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-orig = (HOST, PORT)
-tcp.bind(orig)
-i = 0#identificador do player
-while True:
-	tcp.listen(1)
-	con, cliente = tcp.accept()
-	print('Conectado por', cliente)
-	i += 1
-	if i < 3:
-		if i == 1:
-			game = Jogo()
-			p1 = Player(" O ", i)
-			player1 = Conexoes(con, cliente, p1, game)
+def waitingConnections():
+	global connectionStarted, conn, addr
+	conn, addr = socket.accept()
+	print('Cliente Conectado!')
+	connectionStarted = True
+
+def receiveData():
+	pass
+
+connectionStarted = False
+conn, addr = None, None
+
+# Seta aonde a janela vai aparecer
+os.environ['SDL_VIDEO_WINDOW_POS'] = '450,100'
+
+# Seta o tamanho da janela
+surface = pygame.display.set_mode((600,600))
+
+# Define o título da janela
+pygame.display.set_caption('Jogo da Velha - TCP')
+
+HOST = '127.0.0.1'
+PORT = 5000
+
+# Parâmetros: Protocolo IPV4 e TCP
+socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+socket.bind((HOST, PORT))
+socket.listen(1)
+
+createThread(waitingConnections)
+
+grid = Grid()
+
+player =  "X"
+started = True
+
+while started:
+	for event in pygame.event.get():
+		if (event.type == pygame.QUIT):
+			started = False
+		if (event.type == pygame.MOUSEBUTTONDOWN and not grid.gameOver):
+			# Botão esquerdo do mouse
+			if (pygame.mouse.get_pressed()[0]):
+				position = pygame.mouse.get_pos()
+				x = position[1] // 200
+				y = position[0] // 200
+				grid.getSquareClick(x, y, player)
+				grid.checkGame(x, y, player)
+				if (grid.changePlayer):
+					if (player == "X"):
+						player = "O"
+					else:
+						player = "X"
+		
+		if(event.type == pygame.KEYDOWN):
+			if(event.key == pygame.K_SPACE and grid.gameOver):
+				grid.gridClear()
+				grid.gameOver = False
+			elif(event.key == pygame.K_ESCAPE):
+				started = False
 			
-		else:
-			p2 = Player(" X ", i)
-			player2 = Conexoes(con, cliente, p2, game)
-			player1.start()
-			player2.start()
-			
+	# Cor do background 
+	surface.fill((255,255,255))
+
+	grid.buildGrid(surface)
+
+	# Da "refresh" na janela
+	pygame.display.flip()

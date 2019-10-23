@@ -1,7 +1,17 @@
 import pygame
 import os
+import socket
+import threading
 
 from grid import Grid
+
+def createThread(function):
+  thread = threading.Thread(target=function)
+  thread.daemon = True
+  thread.start()
+
+def receiveData():
+  pass
 
 # Seta aonde a janela vai aparecer
 os.environ['SDL_VIDEO_WINDOW_POS'] = '450,100'
@@ -11,6 +21,15 @@ surface = pygame.display.set_mode((600,600))
 
 # Define o título da janela
 pygame.display.set_caption('Jogo da Velha - TCP')
+
+HOST = '127.0.0.1'
+PORT = 5000
+
+# Parâmetros: Protocolo IPV4 e TCP
+socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+socket.connect((HOST, PORT))
+
+createThread(receiveData)
 
 grid = Grid()
 
@@ -25,12 +44,10 @@ while started:
 			# Botão esquerdo do mouse
 			if (pygame.mouse.get_pressed()[0]):
 				position = pygame.mouse.get_pos()
-
 				x = position[1] // 200
 				y = position[0] // 200
 				grid.getSquareClick(x, y, player)
 				grid.checkGame(x, y, player)
-
 				if (grid.changePlayer):
 					if (player == "X"):
 						player = "O"
