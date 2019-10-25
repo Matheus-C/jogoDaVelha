@@ -11,7 +11,19 @@ def createThread(function):
   thread.start()
 
 def receiveData():
-  pass
+	global turn
+	while True:
+		data = socket.recv(1024).decode()
+		data = data.split('-')
+		x = int(data[0])
+		y = int(data[1])
+		if (data[2] == 'nextTurn'):
+			turn = True
+		if (data[3] == 'False'):
+			grid.gameOver = True
+		if (grid.getSquareValue(x, y) == 0):
+			grid.setSquareValue(x, y, 'X')
+		print(data)
 
 # Seta aonde a janela vai aparecer
 os.environ['SDL_VIDEO_WINDOW_POS'] = '450,100'
@@ -33,8 +45,11 @@ createThread(receiveData)
 
 grid = Grid()
 
-player =  "X"
+player =  "O"
 started = True
+
+turn = False
+playing = 'True'
 
 while started:
 	for event in pygame.event.get():
@@ -43,21 +58,22 @@ while started:
 		if (event.type == pygame.MOUSEBUTTONDOWN and not grid.gameOver):
 			# Botão esquerdo do mouse
 			if (pygame.mouse.get_pressed()[0]):
-				position = pygame.mouse.get_pos()
-				x = position[1] // 200
-				y = position[0] // 200
-				grid.getSquareClick(x, y, player)
-				grid.checkGame(x, y, player)
-				if (grid.changePlayer):
-					if (player == "X"):
-						player = "O"
-					else:
-						player = "X"
+				if(turn and not grid.gameOver):
+					position = pygame.mouse.get_pos()
+					x = position[1] // 200
+					y = position[0] // 200
+					grid.getSquareClick(x, y, player)
+					if (grid.gameOver):
+						playing: 'False'
+					sendData = '{}-{}-{}-{}'.format(x, y, 'nextTurn', playing).encode()
+					socket.send(sendData)
+					turn = False
 		
 		if(event.type == pygame.KEYDOWN):
 			if(event.key == pygame.K_SPACE and grid.gameOver):
 				grid.gridClear()
 				grid.gameOver = False
+				playing = 'True'
 			elif(event.key == pygame.K_ESCAPE):
 				started = False
 			

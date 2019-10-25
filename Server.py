@@ -15,9 +15,22 @@ def waitingConnections():
 	conn, addr = socket.accept()
 	print('Cliente Conectado!')
 	connectionStarted = True
+	receiveData()
 
 def receiveData():
-	pass
+	global turn
+	while True:
+		data = conn.recv(1024).decode()
+		data = data.split('-')
+		x = int(data[0])
+		y = int(data[1])
+		if (data[2] == 'nextTurn'):
+			turn = True
+		if (data[3] == 'False'):
+			grid.gameOver = True
+		if (grid.getSquareValue(x, y) == 0):
+			grid.setSquareValue(x, y, 'O')
+		print(data)
 
 connectionStarted = False
 conn, addr = None, None
@@ -46,28 +59,32 @@ grid = Grid()
 player =  "X"
 started = True
 
+turn = True
+playing = 'True'
+
 while started:
 	for event in pygame.event.get():
 		if (event.type == pygame.QUIT):
 			started = False
-		if (event.type == pygame.MOUSEBUTTONDOWN and not grid.gameOver):
+		if (event.type == pygame.MOUSEBUTTONDOWN and connectionStarted):
 			# Botão esquerdo do mouse
 			if (pygame.mouse.get_pressed()[0]):
-				position = pygame.mouse.get_pos()
-				x = position[1] // 200
-				y = position[0] // 200
-				grid.getSquareClick(x, y, player)
-				grid.checkGame(x, y, player)
-				if (grid.changePlayer):
-					if (player == "X"):
-						player = "O"
-					else:
-						player = "X"
+				if (turn and not grid.gameOver):
+					position = pygame.mouse.get_pos()
+					x = position[1] // 200
+					y = position[0] // 200
+					grid.getSquareClick(x, y, player)
+					if (grid.gameOver):
+						playing: 'False'
+					sendData = '{}-{}-{}-{}'.format(x, y, 'nextTurn', playing).encode()
+					conn.send(sendData)
+					turn = False
 		
 		if(event.type == pygame.KEYDOWN):
 			if(event.key == pygame.K_SPACE and grid.gameOver):
 				grid.gridClear()
 				grid.gameOver = False
+				playing = 'True'
 			elif(event.key == pygame.K_ESCAPE):
 				started = False
 			

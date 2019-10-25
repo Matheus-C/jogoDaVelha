@@ -18,7 +18,6 @@ class Grid:
 		# Gera uma matriz => [3][3]
 		self.grid = [[0 for x in range(3)] for y in range(3)]
 
-		self.changePlayer = True
 		self.gameOver = False
 
 	def getSquareValue(self, x , y):
@@ -29,10 +28,8 @@ class Grid:
 
 	def getSquareClick(self, x, y, player):
 		if (self.getSquareValue(x, y) == 0):
-			self.changePlayer = True
 			self.setSquareValue(x, y, player)
-		else:
-			self.changePlayer = False
+			self.checkGame(x, y, player)
 
 	def buildGrid(self, surface):
 		for line in self.gridLines:
