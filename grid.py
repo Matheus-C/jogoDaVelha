@@ -18,6 +18,12 @@ class Grid:
 		# Gera uma matriz => [3][3]
 		self.grid = [[0 for x in range(3)] for y in range(3)]
 
+		#self.changePlayer = True
+		self.gameOver = False
+	def getGameOver():
+		return self.gameOver
+
+	def getGameOver(self):
 		self.gameOver = False
 
 	def getSquareValue(self, x , y):
@@ -27,9 +33,9 @@ class Grid:
 		self.grid[x][y] = value
 
 	def getSquareClick(self, x, y, player):
+		#if (self.getSquareValue(x, y) == 0):
 		if (self.getSquareValue(x, y) == 0):
 			self.setSquareValue(x, y, player)
-			self.checkGame(x, y, player)
 
 	def buildGrid(self, surface):
 		for line in self.gridLines:
@@ -43,6 +49,24 @@ class Grid:
 				elif (self.getSquareValue(x, y) == "O"):
 					surface.blit(playerO, (y * 200, x * 200))
 		# PESQUISAR SOBRE 
+
+	# Para debugar	 
+	def gridPrint(self):
+		for line in self.grid:
+			print(line)
+
+	def gridClear(self):
+		for x in range(len(self.grid)):
+			for y in range(len(self.grid[x])):
+				self.setSquareValue(x, y, 0)
+
+	def winGame(self, player):
+		print('O Player "'+ player + '" Venceu!')
+		self.gameOver = True
+
+	def tie(self):
+		print("Deu empate!")
+		self.gameOver = True
 
 	def checkGame(self, x, y, player):
 		# Analisa a condição de vitória nas linhas horizontais
@@ -77,21 +101,3 @@ class Grid:
 		if check == 9:
 			self.tie()
 			return
-		
-	# Para debugar	 
-	def gridPrint(self):
-		for line in self.grid:
-			print(line)
-
-	def gridClear(self):
-		for x in range(len(self.grid)):
-			for y in range(len(self.grid[x])):
-				self.setSquareValue(x, y, 0)
-
-	def winGame(self, player):
-		print('O Player "'+ player + '" Venceu!')
-		self.gameOver = True
-
-	def tie(self):
-		print("Deu empate!")
-		self.gameOver = True

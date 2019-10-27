@@ -1,97 +1,68 @@
-import pygame
-import os
-import socket
-import threading
+from Player import Player
+import socket, threading, time
+from queue import Queue
 
-from grid import Grid
+contRodada = 1
 
-def createThread(function):
-  thread = threading.Thread(target=function)
-  thread.daemon = True
-  thread.start()
+#thread para multiplas conexoes
+class Conexoes(threading.Thread):
+	"""Construtor de Conexoes parâmetros: con = conexao, p = objeto Player, game = objeto Jogo"""
+	def __init__(self, con, p):
+		threading.Thread.__init__(self)
+		self.con = con
+		self.p = p
 
-def waitingConnections():
-	global connectionStarted, conn, addr
-	conn, addr = socket.accept()
-	print('Cliente Conectado!')
-	connectionStarted = True
-	receiveData()
-
-def receiveData():
-	global turn
-	while True:
-		data = conn.recv(1024).decode()
-		data = data.split('-')
-		x = int(data[0])
-		y = int(data[1])
-		if (data[2] == 'nextTurn'):
-			turn = True
-		if (data[3] == 'False'):
-			grid.gameOver = True
-		if (grid.getSquareValue(x, y) == 0):
-			grid.setSquareValue(x, y, 'O')
-		print(data)
-
-connectionStarted = False
-conn, addr = None, None
-
-# Seta aonde a janela vai aparecer
-os.environ['SDL_VIDEO_WINDOW_POS'] = '450,100'
-
-# Seta o tamanho da janela
-surface = pygame.display.set_mode((600,600))
-
-# Define o título da janela
-pygame.display.set_caption('Jogo da Velha - TCP')
-
-HOST = '127.0.0.1'
-PORT = 5000
-
-# Parâmetros: Protocolo IPV4 e TCP
-socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-socket.bind((HOST, PORT))
-socket.listen(1)
-
-createThread(waitingConnections)
-
-grid = Grid()
-
-player =  "X"
-started = True
-
-turn = True
-playing = 'True'
-
-while started:
-	for event in pygame.event.get():
-		if (event.type == pygame.QUIT):
-			started = False
-		if (event.type == pygame.MOUSEBUTTONDOWN and connectionStarted):
-			# Botão esquerdo do mouse
-			if (pygame.mouse.get_pressed()[0]):
-				if (turn and not grid.gameOver):
-					position = pygame.mouse.get_pos()
-					x = position[1] // 200
-					y = position[0] // 200
-					grid.getSquareClick(x, y, player)
-					if (grid.gameOver):
-						playing: 'False'
-					sendData = '{}-{}-{}-{}'.format(x, y, 'nextTurn', playing).encode()
-					conn.send(sendData)
-					turn = False
+	def run(self):
 		
-		if(event.type == pygame.KEYDOWN):
-			if(event.key == pygame.K_SPACE and grid.gameOver):
-				grid.gridClear()
-				grid.gameOver = False
-				playing = 'True'
-			elif(event.key == pygame.K_ESCAPE):
-				started = False
+		global contRodada
+		while True:
+			lock.acquire()
+			print(self.name)
+			if contRodada == self.p.getN():
+				
+				data = self.con.recv(1024)
+				print(data.decode() + self.name)
+				q.put(data)
+				lock.release()
+				time.sleep(0.1)
+			else:
+				data = q.get()
+				print(data.decode() + self.name)
+				self.con.send(data)
+				if contRodada == 1:
+					contRodada = 2
+				else:
+					contRodada = 1
+				lock.release()
 			
-	# Cor do background 
-	surface.fill((255,255,255))
+			
+			
+			
 
-	grid.buildGrid(surface)
 
-	# Da "refresh" na janela
-	pygame.display.flip()
+lock = threading.Lock()
+HOST = ""
+PORT = 6854
+tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+orig = (HOST, PORT)
+tcp.bind(orig)
+i = 1#identificador do player
+q = Queue()
+
+while True:
+	if i >= 3:
+		i = 1
+	tcp.listen(1)
+	con, cliente = tcp.accept()
+	print('Conectado por', cliente)
+	if i == 1:
+		p1 = Player("O", i)
+		player1 = Conexoes(con, p1)
+		con.send(p1.getSimb().encode())
+	elif i == 2:
+		p2 = Player("X", i)
+		player2 = Conexoes(con, p2)
+		con.send(p2.getSimb().encode())
+		player1.start()
+		player2.start()
+	i += 1
