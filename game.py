@@ -5,8 +5,6 @@ import socket, select
 import pygame
 import os
 
-
-
 # Seta aonde a janela vai aparecer
 os.environ['SDL_VIDEO_WINDOW_POS'] = '450,100'
 
@@ -33,7 +31,6 @@ else:
 	suaVez = False
 while started:
 	
-
 	for event in pygame.event.get():
 		
 		if (event.type == pygame.QUIT):
