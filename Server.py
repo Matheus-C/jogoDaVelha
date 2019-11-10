@@ -4,7 +4,7 @@ from queue import Queue
 
 contRodada = 1
 
-#thread para multiplas conexoes
+# thread para conexoes simultaneas
 class Conexoes(threading.Thread):
 	"""Construtor de Conexoes parâmetros: con = conexao, p = objeto Player, game = objeto Jogo"""
 	def __init__(self, con, p):
@@ -13,13 +13,11 @@ class Conexoes(threading.Thread):
 		self.p = p
 
 	def run(self):
-		
 		global contRodada
 		while True:
 			lock.acquire()
 			print(self.name)
 			if contRodada == self.p.getN():
-				
 				data = self.con.recv(1024)
 				print(data.decode() + self.name)
 				q.put(data)
@@ -34,11 +32,7 @@ class Conexoes(threading.Thread):
 				else:
 					contRodada = 1
 				lock.release()
-			
-			
-			
-			
-
+				
 
 lock = threading.Lock()
 HOST = ""

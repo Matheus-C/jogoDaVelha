@@ -33,9 +33,12 @@ class Grid:
 		self.grid[x][y] = value
 
 	def getSquareClick(self, x, y, player):
-		#if (self.getSquareValue(x, y) == 0):
 		if (self.getSquareValue(x, y) == 0):
 			self.setSquareValue(x, y, player)
+			return 1
+		else:
+			return 0
+
 
 	def buildGrid(self, surface):
 		for line in self.gridLines:

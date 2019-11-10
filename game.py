@@ -5,6 +5,8 @@ import socket, select
 import pygame
 import os
 
+
+
 # Seta aonde a janela vai aparecer
 os.environ['SDL_VIDEO_WINDOW_POS'] = '450,100'
 
@@ -30,7 +32,7 @@ if player == 'O':
 else:
 	suaVez = False
 while started:
-	
+
 	for event in pygame.event.get():
 		
 		if (event.type == pygame.QUIT):
@@ -45,17 +47,20 @@ while started:
 				x = position[1] // 200
 				y = position[0] // 200
 
-				grid.getSquareClick(x, y, player)
-				sendData = str(x) + '-' + str(y) + '-' + player
-				tcp.send(sendData.encode())
-				grid.checkGame(x, y, player)
-				suaVez = False
+				valid = grid.getSquareClick(x, y, player)
+				if valid:
+					sendData = str(x) + '-' + str(y) + '-' + player
+					tcp.send(sendData.encode())
+					grid.checkGame(x, y, player)
+					suaVez = False
 				
 
 		if(event.type == pygame.KEYDOWN):
-			if(event.key == pygame.K_SPACE and grid.gameOver):
+			if(event.key == pygame.K_SPACE and grid.gameOver and suaVez):
 				grid.gridClear()
 				grid.gameOver = False
+				tcp.send("reset".encode())
+				suaVez = False
 			elif(event.key == pygame.K_ESCAPE):
 				started = False
 
@@ -66,12 +71,18 @@ while started:
 
 	# Da "refresh" na janela
 	pygame.display.flip()
+	# detecta se há mensagens no buffer
 	r, w, e = select.select((tcp,), (), (), 0)
-
-	if not suaVez and r:
+	# se há mensagens no buffer processa elas
+	if r:
 		rcvMsg = tcp.recv(1024).decode()
-		print(rcvMsg)
-		rcvMsg = rcvMsg.split('-')
-		grid.getSquareClick(int(rcvMsg[0]), int(rcvMsg[1]), rcvMsg[2])
-		grid.checkGame(int(rcvMsg[0]), int(rcvMsg[1]), rcvMsg[2])
-		suaVez = True
+		if rcvMsg == "reset":
+			grid.gridClear()
+			grid.gameOver = False
+			suaVez = True
+		else:
+			print(rcvMsg)
+			rcvMsg = rcvMsg.split('-')
+			grid.getSquareClick(int(rcvMsg[0]), int(rcvMsg[1]), rcvMsg[2])
+			grid.checkGame(int(rcvMsg[0]), int(rcvMsg[1]), rcvMsg[2])
+			suaVez = True
