@@ -28,7 +28,7 @@ Aperte `esc` a qualquer momento para fechar o jogo.
 
 
 
-Aperte `barra de espaço` para reiniciar o jogo após seu término.
+Aperte `barra de espaço` para reiniciar o jogo após seu término (apenas o jogador que perdeu pode requisitar um novo jogo).
 
 ## Licença
 
