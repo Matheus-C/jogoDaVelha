@@ -61,8 +61,9 @@ while started:
 				grid.gameOver = False
 				tcp.send("reset".encode())
 				suaVez = False
-			elif(event.key == pygame.K_ESCAPE):
+			elif(event.key == pygame.K_ESCAPE and suaVez):
 				started = False
+				tcp.send("close".encode())
 
 	# Cor do background 
 	surface.fill((255,255,255))
@@ -80,6 +81,9 @@ while started:
 			grid.gridClear()
 			grid.gameOver = False
 			suaVez = True
+		elif rcvMsg == "close":
+			started = False
+			tcp.close()
 		else:
 			print(rcvMsg)
 			rcvMsg = rcvMsg.split('-')

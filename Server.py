@@ -21,12 +21,20 @@ class Conexoes(threading.Thread):
 				data = self.con.recv(1024)
 				print(data.decode() + self.name)
 				q.put(data)
+				if data.decode() == "close":
+					con.close()
+					lock.release()
+					break
 				lock.release()
 				time.sleep(0.1)
 			else:
 				data = q.get()
 				print(data.decode() + self.name)
 				self.con.send(data)
+				if data.decode() == "close":
+					con.close()
+					lock.release()
+					break
 				if contRodada == 1:
 					contRodada = 2
 				else:
@@ -40,12 +48,9 @@ PORT = 6854
 tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 orig = (HOST, PORT)
 tcp.bind(orig)
-i = 1#identificador do player
 q = Queue()
-
-while True:
-	if i >= 3:
-		i = 1
+# loop para conectar os jogadores max 2 jogadores
+for i in range(1, 3):
 	tcp.listen(1)
 	con, cliente = tcp.accept()
 	print('Conectado por', cliente)
@@ -59,4 +64,3 @@ while True:
 		con.send(p2.getSimb().encode())
 		player1.start()
 		player2.start()
-	i += 1
