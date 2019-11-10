@@ -24,7 +24,7 @@ O projeto consiste em permitir, através do uso de Socket TCP, a conexão de doi
 
 ## Comandos extras
 
-Aperte `esc` a qualquer momento para fechar o jogo.
+Aperte `esc` para fechar o jogo (apenas o jogador atual pode fazer este comando).
 
 
 
