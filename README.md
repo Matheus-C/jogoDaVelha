@@ -10,7 +10,7 @@ O projeto consiste em permitir, através do uso de Socket TCP, a conexão de doi
 
 - Pygame
 
-	- [Pygame](https://www.pygame.org/download.shtml/)
+	- [Pygame](https://www.pygame.org/wiki/GettingStarted)
 
 
 ## Como usar
