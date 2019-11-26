@@ -2,27 +2,26 @@ from Player import Player
 import socket, threading, time
 from queue import Queue
 
-contRodada = 1
+turn = 1
 
 # thread para conexoes simultaneas
 class Conexoes(threading.Thread):
-	"""Construtor de Conexoes parâmetros: con = conexao, p = objeto Player, game = objeto Jogo"""
-	def __init__(self, con, p):
+	def __init__(self, connection, player):
 		threading.Thread.__init__(self)
-		self.con = con
-		self.p = p
+		self.connection = connection
+		self.player = player
 
 	def run(self):
-		global contRodada
+		global turn
 		while True:
 			lock.acquire()
 			print(self.name)
-			if contRodada == self.p.getN():
-				data = self.con.recv(1024)
+			if turn == self.player.getTurn():
+				data = self.connection.recv(1024)
 				print(data.decode() + self.name)
 				q.put(data)
 				if data.decode() == "close":
-					con.close()
+					connection.close()
 					lock.release()
 					break
 				lock.release()
@@ -30,15 +29,15 @@ class Conexoes(threading.Thread):
 			else:
 				data = q.get()
 				print(data.decode() + self.name)
-				self.con.send(data)
+				self.connection.send(data)
 				if data.decode() == "close":
-					con.close()
+					connection.close()
 					lock.release()
 					break
-				if contRodada == 1:
-					contRodada = 2
+				if turn == 1:
+					turn = 2
 				else:
-					contRodada = 1
+					turn = 1
 				lock.release()
 				
 
@@ -49,18 +48,19 @@ tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 orig = (HOST, PORT)
 tcp.bind(orig)
 q = Queue()
+
 # loop para conectar os jogadores max 2 jogadores
 for i in range(1, 3):
 	tcp.listen(1)
-	con, cliente = tcp.accept()
-	print('Conectado por', cliente)
+	connection, client = tcp.accept()
+	print('Conectado por', client)
 	if i == 1:
-		p1 = Player("O", i)
-		player1 = Conexoes(con, p1)
-		con.send(p1.getSimb().encode())
+		p1 = Player("X", i)
+		player1 = Conexoes(connection, p1)
+		connection.send(p1.getSymbol().encode())
 	elif i == 2:
-		p2 = Player("X", i)
-		player2 = Conexoes(con, p2)
-		con.send(p2.getSimb().encode())
+		p2 = Player("O", i)
+		player2 = Conexoes(connection, p2)
+		connection.send(p2.getSymbol().encode())
 		player1.start()
 		player2.start()

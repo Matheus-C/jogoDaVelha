@@ -1,13 +1,12 @@
-
 class Player(object):
 	"""construtor do Player"""
-	def __init__(self, simb, n):
+	def __init__(self, symbol, turn):
 		super(Player, self).__init__()
-		self.simb = simb
-		self.n = n
+		self.symbol = symbol
+		self.turn = turn
 	#
-	def getSimb(self):
-		return self.simb
+	def getSymbol(self):
+		return self.symbol
 
-	def getN(self):
-		return self.n
+	def getTurn(self):
+		return self.turn

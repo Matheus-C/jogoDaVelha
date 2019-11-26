@@ -20,11 +20,6 @@ class Grid:
 
 		#self.changePlayer = True
 		self.gameOver = False
-	def getGameOver():
-		return self.gameOver
-
-	def getGameOver(self):
-		self.gameOver = False
 
 	def getSquareValue(self, x , y):
 		return self.grid[x][y]
@@ -39,19 +34,16 @@ class Grid:
 		else:
 			return 0
 
-
 	def buildGrid(self, surface):
 		for line in self.gridLines:
 			# Args... => (Janela, cor, inicio, fim, largura)
 			pygame.draw.line(surface, (0,0,0), line[0], line[1], 5)
-		# PESQUISAR SOBRE 
 		for x in range(len(self.grid)):
 			for y in range(len(self.grid[x])):
 				if (self.getSquareValue(x, y) == "X"):
 					surface.blit(playerX, (y * 200, x * 200))
 				elif (self.getSquareValue(x, y) == "O"):
 					surface.blit(playerO, (y * 200, x * 200))
-		# PESQUISAR SOBRE 
 
 	# Para debugar	 
 	def gridPrint(self):
