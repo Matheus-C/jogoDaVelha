@@ -35,6 +35,8 @@ while started:
 		
 		if (event.type == pygame.QUIT):
 			started = False
+			tcp.send("close".encode())
+
 
 		if (event.type == pygame.MOUSEBUTTONDOWN and not grid.gameOver):
 			# Botão esquerdo do mouse
@@ -51,15 +53,11 @@ while started:
 					grid.checkGame(x, y, player)
 					yourTurn = False
 				
-		if(event.type == pygame.KEYDOWN):
-			if(event.key == pygame.K_SPACE and grid.gameOver and yourTurn):
-				grid.gridClear()
-				grid.gameOver = False
-				tcp.send("reset".encode())
-				yourTurn = False
-			elif(event.key == pygame.K_ESCAPE and yourTurn):
-				started = False
-				tcp.send("close".encode())
+		if(event.type == pygame.KEYDOWN and grid.gameOver and yourTurn):
+			grid.gridClear()
+			grid.gameOver = False
+			tcp.send("reset".encode())
+			yourTurn = False
 
 	# Cor do background 
 	surface.fill((255,255,255))
